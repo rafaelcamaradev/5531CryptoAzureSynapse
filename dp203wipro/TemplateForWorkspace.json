@@ -522,7 +522,7 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"folderPath": {
-							"value": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
+							"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
 						},
 						"fileSystem": "dp203wipro"
@@ -595,7 +595,7 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"folderPath": {
-							"value": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
+							"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
 						},
 						"fileSystem": "dp203wipro"
