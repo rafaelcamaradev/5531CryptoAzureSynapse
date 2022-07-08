@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "dp203wipro"
+		},
+		"5531Crypto_connectionString": {
+			"value": ""
+		},
+		"Blob5531Crypto_connectionString": {
+			"value": ""
+		},
+		"dp203wipro-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"dp203wipro-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://dp203wipro.dfs.core.windows.net"
+		}
+	}
+}
