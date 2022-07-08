@@ -49,6 +49,101 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Copy 5531CryptoVolBinance",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy5531CryptoVol",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "MySqlSource"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "5531_crypto_vol_binance",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "5531CryptoVolBinance",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "FailCryptoVol",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "Copy5531CryptoVol",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Failed to load tickers from Gate.io",
+					"errorCode": {
+						"value": "@pipeline().RunId",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "FailCryptoVolBinance",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "Copy 5531CryptoVolBinance",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Error to load tickers from Binance",
+					"errorCode": {
+						"value": "@pipeline().RunId",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"annotations": [],
