@@ -1,0 +1,16 @@
+{
+	"name": "5531_crypto_vol",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "5531Crypto",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "`dm_fact_analyze_crypto_vol`"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

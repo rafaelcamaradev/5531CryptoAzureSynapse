@@ -1,0 +1,20 @@
+{
+	"name": "Parquet5531Crypto",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blob5531Crypto",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "dp203wipro"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
