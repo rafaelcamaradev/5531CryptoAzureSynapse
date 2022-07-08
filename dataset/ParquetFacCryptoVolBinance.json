@@ -1,0 +1,65 @@
+{
+	"name": "ParquetFacCryptoVolBinance",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
+				"fileSystem": "dp203wipro"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "INT32"
+			},
+			{
+				"name": "fact_calc",
+				"type": "FLOAT"
+			},
+			{
+				"name": "ticker",
+				"type": "UTF8"
+			},
+			{
+				"name": "coin",
+				"type": "UTF8"
+			},
+			{
+				"name": "pair",
+				"type": "UTF8"
+			},
+			{
+				"name": "vol_time",
+				"type": "INT32"
+			},
+			{
+				"name": "volume",
+				"type": "FLOAT"
+			},
+			{
+				"name": "processed_date",
+				"type": "INT96"
+			},
+			{
+				"name": "pond_value",
+				"type": "FLOAT"
+			},
+			{
+				"name": "last_processed_date",
+				"type": "INT96"
+			},
+			{
+				"name": "sign_vol",
+				"type": "FLOAT"
+			}
+		]
+	}
+}
