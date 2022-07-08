@@ -83,6 +83,103 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Copy 5531CryptoVolBinance",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy5531CryptoVol",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "5531_crypto_vol_binance",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "5531CryptoVolBinance",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "FailCryptoVol",
+						"type": "Fail",
+						"dependsOn": [
+							{
+								"activity": "Copy5531CryptoVol",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "Failed to load tickers from Gate.io",
+							"errorCode": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "FailCryptoVolBinance",
+						"type": "Fail",
+						"dependsOn": [
+							{
+								"activity": "Copy 5531CryptoVolBinance",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "Error to load tickers from Binance",
+							"errorCode": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -94,7 +191,78 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/5531_crypto_vol')]",
-				"[concat(variables('workspaceId'), '/datasets/Parquet5531Crypto')]"
+				"[concat(variables('workspaceId'), '/datasets/Parquet5531Crypto')]",
+				"[concat(variables('workspaceId'), '/datasets/5531_crypto_vol_binance')]",
+				"[concat(variables('workspaceId'), '/datasets/5531CryptoVolBinance')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/5531CryptoVolBinance')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "dp203wipro"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT32"
+					},
+					{
+						"name": "fact_calc",
+						"type": "FLOAT"
+					},
+					{
+						"name": "ticker",
+						"type": "UTF8"
+					},
+					{
+						"name": "coin",
+						"type": "UTF8"
+					},
+					{
+						"name": "pair",
+						"type": "UTF8"
+					},
+					{
+						"name": "vol_time",
+						"type": "INT32"
+					},
+					{
+						"name": "volume",
+						"type": "FLOAT"
+					},
+					{
+						"name": "processed_date",
+						"type": "INT96"
+					},
+					{
+						"name": "pond_value",
+						"type": "FLOAT"
+					},
+					{
+						"name": "last_processed_date",
+						"type": "INT96"
+					},
+					{
+						"name": "sign_vol",
+						"type": "FLOAT"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
 			]
 		},
 		{
