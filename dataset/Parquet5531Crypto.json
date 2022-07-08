@@ -10,6 +10,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
+					"type": "Expression"
+				},
 				"container": "dp203wipro"
 			},
 			"compressionCodec": "snappy"
