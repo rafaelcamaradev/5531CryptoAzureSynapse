@@ -167,7 +167,14 @@
 			{
 				"name": "Copy5531CryptoFactVol",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "RemoveAllParquetFiles",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -311,11 +318,37 @@
 						"referenceName": "5531CryptoFiles",
 						"type": "DatasetReference"
 					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "Blob5531Crypto",
+							"type": "LinkedServiceReference"
+						}
+					},
 					"enableLogging": true,
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"recursive": true,
 						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "FailToRemoveFiles",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "RemoveAllParquetFiles",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Failed to Remove files from Data Lake",
+					"errorCode": {
+						"value": "@pipeline().RunId",
+						"type": "Expression"
 					}
 				}
 			}
