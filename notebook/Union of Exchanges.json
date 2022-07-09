@@ -1,0 +1,103 @@
+{
+	"name": "Union of Exchanges",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "spark01",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "1",
+				"spark.autotune.trackingId": "988a6d2d-f573-453f-9b02-84a4a50e7f9f"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/735d0ce7-dfad-483d-94ed-3fa2bd57b61c/resourceGroups/dp203wipro/providers/Microsoft.Synapse/workspaces/dp203wipro/bigDataPools/spark01",
+				"name": "spark01",
+				"type": "Spark",
+				"endpoint": "https://dp203wipro.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/spark01",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"\r\n",
+					"# data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet (BINANCE)\r\n",
+					"\r\n",
+					"dfBinance = spark.read.load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_20220708/data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet', format='parquet')\r\n",
+					"\r\n",
+					"dfGateio = spark \\\r\n",
+					"     .read \\\r\n",
+					"     .load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_20220708/data_6ec8611f-b065-40cb-bd84-62a57a240a45_0fca5998-5a47-4e74-8717-1d02771f8111.parquet', format='parquet')\r\n",
+					"\r\n",
+					"\r\n",
+					"dfGateio  = dfGateio.withColumn('Exchange',lit('GATEIO'))\r\n",
+					"dfBinance  = dfBinance.withColumn('Exchange',lit('BINANCE'))\r\n",
+					"\r\n",
+					"dfResult = dfBinance.unionAll(dfGateio)\r\n",
+					""
+				],
+				"execution_count": 80
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import datetime\n",
+					"\n",
+					"dt = datetime.datetime.now()\n",
+					"dt_frm = dt.strftime('%Y%m%d')\n",
+					"\n",
+					"dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
+					"\n",
+					""
+				],
+				"execution_count": 82
+			}
+		]
+	}
+}
