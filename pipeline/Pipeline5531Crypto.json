@@ -327,7 +327,7 @@
 					"enableLogging": true,
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
-						"recursive": true,
+						"fileListPath": "dp203wipro",
 						"enablePartitionDiscovery": false
 					}
 				}
