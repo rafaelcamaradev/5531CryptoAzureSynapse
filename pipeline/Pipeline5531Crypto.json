@@ -327,7 +327,7 @@
 					"enableLogging": true,
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
-						"fileListPath": "dp203wipro/synapse_workspace",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					}
 				}
