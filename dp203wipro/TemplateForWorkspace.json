@@ -203,7 +203,14 @@
 					{
 						"name": "Copy5531CryptoFactVol",
 						"type": "Copy",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "RemoveAllParquetFiles",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -333,6 +340,58 @@
 							},
 							"snapshot": true
 						}
+					},
+					{
+						"name": "RemoveAllParquetFiles",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "5531CryptoFiles",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"logStorageSettings": {
+								"linkedServiceName": {
+									"referenceName": "Blob5531Crypto",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"enableLogging": true,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "FailToRemoveFiles",
+						"type": "Fail",
+						"dependsOn": [
+							{
+								"activity": "RemoveAllParquetFiles",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "Failed to Remove files from Data Lake",
+							"errorCode": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -351,7 +410,9 @@
 				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoFactVol')]",
 				"[concat(variables('workspaceId'), '/datasets/5531FactCryptoVolBinance')]",
 				"[concat(variables('workspaceId'), '/datasets/ParquetFacCryptoVolBinance')]",
-				"[concat(variables('workspaceId'), '/notebooks/Union of Exchanges')]"
+				"[concat(variables('workspaceId'), '/notebooks/Union of Exchanges')]",
+				"[concat(variables('workspaceId'), '/datasets/5531CryptoFiles')]",
+				"[concat(variables('workspaceId'), '/linkedServices/Blob5531Crypto')]"
 			]
 		},
 		{
@@ -372,6 +433,28 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/5531Crypto')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/5531CryptoFiles')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "dp203wipro"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
 			]
 		},
 		{
