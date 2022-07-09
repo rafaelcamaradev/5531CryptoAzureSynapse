@@ -10,6 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "gateio_",
 				"folderPath": {
 					"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 					"type": "Expression"

@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "988a6d2d-f573-453f-9b02-84a4a50e7f9f"
+				"spark.autotune.trackingId": "6f4b71fb-a9f8-4322-84c3-1466983611f5"
 			}
 		},
 		"metadata": {
@@ -55,14 +55,19 @@
 				},
 				"source": [
 					"from pyspark.sql.functions import *\r\n",
+					"import datetime\r\n",
+					"\r\n",
+					"dt = datetime.datetime.now()\r\n",
+					"dt_frm = dt.strftime('%Y%m%d')\r\n",
+					"\r\n",
 					"\r\n",
 					"# data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet (BINANCE)\r\n",
 					"\r\n",
-					"dfBinance = spark.read.load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_20220708/data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet', format='parquet')\r\n",
+					"dfBinance = spark.read.load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet', format='parquet')\r\n",
 					"\r\n",
 					"dfGateio = spark \\\r\n",
 					"     .read \\\r\n",
-					"     .load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_20220708/data_6ec8611f-b065-40cb-bd84-62a57a240a45_0fca5998-5a47-4e74-8717-1d02771f8111.parquet', format='parquet')\r\n",
+					"     .load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/data_6ec8611f-b065-40cb-bd84-62a57a240a45_0fca5998-5a47-4e74-8717-1d02771f8111.parquet', format='parquet')\r\n",
 					"\r\n",
 					"\r\n",
 					"dfGateio  = dfGateio.withColumn('Exchange',lit('GATEIO'))\r\n",
@@ -71,7 +76,7 @@
 					"dfResult = dfBinance.unionAll(dfGateio)\r\n",
 					""
 				],
-				"execution_count": 80
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -87,10 +92,7 @@
 					}
 				},
 				"source": [
-					"import datetime\n",
 					"\n",
-					"dt = datetime.datetime.now()\n",
-					"dt_frm = dt.strftime('%Y%m%d')\n",
 					"\n",
 					"dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
 					"\n",
