@@ -306,6 +306,33 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Union of Exchanges",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "Copy 5531CryptoVolBinance",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "Union of Exchanges",
+								"type": "NotebookReference"
+							},
+							"snapshot": true
+						}
 					}
 				],
 				"policy": {
@@ -323,7 +350,8 @@
 				"[concat(variables('workspaceId'), '/datasets/5531CryptoFactVol')]",
 				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoFactVol')]",
 				"[concat(variables('workspaceId'), '/datasets/5531FactCryptoVolBinance')]",
-				"[concat(variables('workspaceId'), '/datasets/ParquetFacCryptoVolBinance')]"
+				"[concat(variables('workspaceId'), '/datasets/ParquetFacCryptoVolBinance')]",
+				"[concat(variables('workspaceId'), '/notebooks/Union of Exchanges')]"
 			]
 		},
 		{
@@ -784,7 +812,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "cc1f4882-8577-4915-ab8d-11e6a05d1724"
+						"spark.autotune.trackingId": "988a6d2d-f573-453f-9b02-84a4a50e7f9f"
 					}
 				},
 				"metadata": {
@@ -809,8 +837,7 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": true
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
