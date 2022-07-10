@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "405c8504-799f-4c44-81a0-58ac2e6e9710"
+				"spark.autotune.trackingId": "927d3b84-2c4a-4205-9262-d26349c2ae84"
 			}
 		},
 		"metadata": {
@@ -91,9 +91,41 @@
 					}
 				},
 				"source": [
+					"dfBinancePond = spark \\\n",
+					"          .read \\\n",
+					"          .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoPond_{dt_frm}/binancepond_*', format='parquet')\n",
 					"\n",
+					"dfGateioPond = spark \\\n",
+					"     .read \\\n",
+					"     .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoPond_{dt_frm}/gateiopond_*', format='parquet')\n",
 					"\n",
+					"dfGateioPond  = dfGateio.withColumn('Exchange',lit('GATEIO'))\n",
+					"dfBinancePond  = dfBinancePond.withColumn('Exchange',lit('BINANCE'))\n",
+					"\n",
+					"dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\n",
+					"#master fact tables\n",
 					"dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
+					"\n",
+					"#ponderation tables\n",
+					"dfResultPond.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/factpond_{dt_frm}')\n",
 					"\n",
 					""
 				],
