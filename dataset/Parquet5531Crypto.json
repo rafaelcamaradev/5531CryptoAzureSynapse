@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": {
-					"value": "@concat('binance_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+					"value": "@concat('gateio_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
 					"type": "Expression"
 				},
 				"folderPath": {
