@@ -911,7 +911,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "d2d0a408-cc76-4427-8cd7-d355ef6d2980"
+						"spark.autotune.trackingId": "f8a15559-386a-4f19-937a-917107ea744b"
 					}
 				},
 				"metadata": {
@@ -959,11 +959,11 @@
 							"\r\n",
 							"dfBinance = spark \\\r\n",
 							"          .read \\\r\n",
-							"          .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/binance_*.parquet', format='parquet')\r\n",
+							"          .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_{dt_frm}/binance_*', format='parquet')\r\n",
 							"\r\n",
 							"dfGateio = spark \\\r\n",
 							"     .read \\\r\n",
-							"     .load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/gateio_*.parquet', format='parquet')\r\n",
+							"     .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoFact_{dt_frm}/gateio_*', format='parquet')\r\n",
 							"\r\n",
 							"dfGateio  = dfGateio.withColumn('Exchange',lit('GATEIO'))\r\n",
 							"dfBinance  = dfBinance.withColumn('Exchange',lit('BINANCE'))\r\n",
@@ -972,7 +972,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
