@@ -10,7 +10,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "binance_",
+				"fileName": {
+					"value": "@concat('binance_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+					"type": "Expression"
+				},
 				"folderPath": {
 					"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 					"type": "Expression"
