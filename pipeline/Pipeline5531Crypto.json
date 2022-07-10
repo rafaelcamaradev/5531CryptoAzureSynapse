@@ -62,7 +62,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Copy5531CryptoFactVolBinance",
+						"activity": "Copy 5531CryptoVolPond",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -127,6 +127,12 @@
 						"dependencyConditions": [
 							"Failed"
 						]
+					},
+					{
+						"activity": "Copy 5531CryptoVolPond",
+						"dependencyConditions": [
+							"Failed"
+						]
 					}
 				],
 				"userProperties": [],
@@ -150,6 +156,12 @@
 					},
 					{
 						"activity": "Copy5531CryptoFactVolBinance",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "Copy 5531CryptoVolPondBinance",
 						"dependencyConditions": [
 							"Failed"
 						]
@@ -279,7 +291,7 @@
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
-						"activity": "Copy 5531CryptoVolBinance",
+						"activity": "Copy 5531CryptoVolPondBinance",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -351,6 +363,116 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Copy 5531CryptoVolPondBinance",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy 5531CryptoVolBinance",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "MySqlSource"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "fact_analyze_crypto_vol_pond_binance",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet5531CryptoVolBinancePond",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy 5531CryptoVolPond",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy5531CryptoFactVolBinance",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "MySqlSource"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "fact_analyze_crypto_vol_pond",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet5531CryptoVolPond",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": [],
