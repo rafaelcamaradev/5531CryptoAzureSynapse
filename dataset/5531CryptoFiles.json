@@ -2,16 +2,15 @@
 	"name": "5531CryptoFiles",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+			"referenceName": "Blob5531Crypto",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
 		"type": "Binary",
 		"typeProperties": {
 			"location": {
-				"type": "AzureBlobFSLocation",
-				"folderPath": "synapse_workspace",
-				"fileSystem": "dp203wipro"
+				"type": "AzureBlobStorageLocation",
+				"container": "dp203wipro"
 			}
 		}
 	}
