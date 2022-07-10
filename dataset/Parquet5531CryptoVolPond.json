@@ -1,0 +1,64 @@
+{
+	"name": "Parquet5531CryptoVolPond",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat('gateiopond_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat('5531CryptoPond_',formatDateTime(utcNow(),'yyyyMMdd'))",
+					"type": "Expression"
+				},
+				"fileSystem": "dp203wipro"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "INT32"
+			},
+			{
+				"name": "ticker",
+				"type": "UTF8"
+			},
+			{
+				"name": "coin",
+				"type": "UTF8"
+			},
+			{
+				"name": "pair",
+				"type": "UTF8"
+			},
+			{
+				"name": "vol_time",
+				"type": "INT32"
+			},
+			{
+				"name": "volume",
+				"type": "FLOAT"
+			},
+			{
+				"name": "processed_date",
+				"type": "INT96"
+			},
+			{
+				"name": "pond_value",
+				"type": "FLOAT"
+			},
+			{
+				"name": "dm_inserted",
+				"type": "INT32"
+			}
+		]
+	}
+}
