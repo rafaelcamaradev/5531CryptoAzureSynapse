@@ -367,7 +367,7 @@
 							},
 							"enableLogging": true,
 							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
+								"type": "AzureBlobStorageReadSettings",
 								"recursive": true,
 								"enablePartitionDiscovery": false
 							}
@@ -441,21 +441,20 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+					"referenceName": "Blob5531Crypto",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
 				"type": "Binary",
 				"typeProperties": {
 					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "synapse_workspace",
-						"fileSystem": "dp203wipro"
+						"type": "AzureBlobStorageLocation",
+						"container": "dp203wipro"
 					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
+				"[concat(variables('workspaceId'), '/linkedServices/Blob5531Crypto')]"
 			]
 		},
 		{
@@ -472,6 +471,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('binance_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
 						"folderPath": {
 							"value": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
@@ -605,6 +608,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@concat('gateio_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
 						"folderPath": {
 							"value": "@concat('5531Crypto_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
@@ -633,7 +640,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "gateio_",
+						"fileName": {
+							"value": "@concat('gateio_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
 						"folderPath": {
 							"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
@@ -707,7 +717,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "binance_",
+						"fileName": {
+							"value": "@concat('binance_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
 						"folderPath": {
 							"value": "@concat('5531CryptoFact_',formatDateTime(utcNow(),'yyyyMMdd'))",
 							"type": "Expression"
@@ -898,7 +911,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "9d1a71e1-e859-4210-a02e-897b502c3fd8"
+						"spark.autotune.trackingId": "d2d0a408-cc76-4427-8cd7-d355ef6d2980"
 					}
 				},
 				"metadata": {
@@ -944,12 +957,13 @@
 							"\r\n",
 							"# data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet (BINANCE)\r\n",
 							"\r\n",
-							"dfBinance = spark.read.load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/binance_*.parquet', format='parquet')\r\n",
+							"dfBinance = spark \\\r\n",
+							"          .read \\\r\n",
+							"          .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/binance_*.parquet', format='parquet')\r\n",
 							"\r\n",
 							"dfGateio = spark \\\r\n",
 							"     .read \\\r\n",
 							"     .load('abfss://dp203wipro@dp203wipro.dfs.core.windows.net/dp203wipro/5531CryptoFact_{dt_frm}/gateio_*.parquet', format='parquet')\r\n",
-							"\r\n",
 							"\r\n",
 							"dfGateio  = dfGateio.withColumn('Exchange',lit('GATEIO'))\r\n",
 							"dfBinance  = dfBinance.withColumn('Exchange',lit('BINANCE'))\r\n",
@@ -958,7 +972,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -981,7 +995,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 82
+						"execution_count": null
 					}
 				]
 			},
