@@ -385,8 +385,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "MySqlSource",
-						"query": "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED ;\nSELECT * FROM fact_analyze_crypto_vol_pond_binance ;\nCOMMIT ;"
+						"type": "MySqlSource"
 					},
 					"sink": {
 						"type": "ParquetSink",
@@ -441,8 +440,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "MySqlSource",
-						"query": "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED ;\nSELECT * FROM fact_analyze_crypto_vol_pond ;\nCOMMIT ;"
+						"type": "MySqlSource"
 					},
 					"sink": {
 						"type": "ParquetSink",
