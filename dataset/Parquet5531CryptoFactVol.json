@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": {
-					"value": "@formatDateTime(utcNow(),'yyyyMMdd')",
+					"value": "@concat('gateio_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
 					"type": "Expression"
 				},
 				"folderPath": {
