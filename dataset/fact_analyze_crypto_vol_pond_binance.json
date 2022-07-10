@@ -1,0 +1,15 @@
+{
+	"name": "fact_analyze_crypto_vol_pond_binance",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "5531Crypto",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "`fact_analyze_crypto_vol_pond_binance`"
+		}
+	}
+}
