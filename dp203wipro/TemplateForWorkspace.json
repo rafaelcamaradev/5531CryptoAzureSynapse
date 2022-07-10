@@ -96,7 +96,7 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "Copy5531CryptoFactVolBinance",
+								"activity": "Copy 5531CryptoVolPond",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -163,6 +163,12 @@
 								"dependencyConditions": [
 									"Failed"
 								]
+							},
+							{
+								"activity": "Copy 5531CryptoVolPond",
+								"dependencyConditions": [
+									"Failed"
+								]
 							}
 						],
 						"userProperties": [],
@@ -186,6 +192,12 @@
 							},
 							{
 								"activity": "Copy5531CryptoFactVolBinance",
+								"dependencyConditions": [
+									"Failed"
+								]
+							},
+							{
+								"activity": "Copy 5531CryptoVolPondBinance",
 								"dependencyConditions": [
 									"Failed"
 								]
@@ -319,7 +331,7 @@
 						"type": "SynapseNotebook",
 						"dependsOn": [
 							{
-								"activity": "Copy 5531CryptoVolBinance",
+								"activity": "Copy 5531CryptoVolPondBinance",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -392,6 +404,120 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "Copy 5531CryptoVolPondBinance",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy 5531CryptoVolBinance",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "fact_analyze_crypto_vol_pond_binance",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet5531CryptoVolBinancePond",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy 5531CryptoVolPond",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy5531CryptoFactVolBinance",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "fact_analyze_crypto_vol_pond",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet5531CryptoVolPond",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -412,6 +538,10 @@
 				"[concat(variables('workspaceId'), '/datasets/ParquetFacCryptoVolBinance')]",
 				"[concat(variables('workspaceId'), '/notebooks/Union of Exchanges')]",
 				"[concat(variables('workspaceId'), '/datasets/5531CryptoFiles')]",
+				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond_binance')]",
+				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolBinancePond')]",
+				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond')]",
+				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolPond')]",
 				"[concat(variables('workspaceId'), '/linkedServices/Blob5531Crypto')]"
 			]
 		},
@@ -704,6 +834,144 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Parquet5531CryptoVolBinancePond')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('binancepond_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat('5531CryptoPond_',formatDateTime(utcNow(),'yyyyMMdd'))",
+							"type": "Expression"
+						},
+						"fileSystem": "dp203wipro"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT32"
+					},
+					{
+						"name": "ticker",
+						"type": "UTF8"
+					},
+					{
+						"name": "coin",
+						"type": "UTF8"
+					},
+					{
+						"name": "pair",
+						"type": "UTF8"
+					},
+					{
+						"name": "vol_time",
+						"type": "INT32"
+					},
+					{
+						"name": "volume",
+						"type": "FLOAT"
+					},
+					{
+						"name": "processed_date",
+						"type": "INT96"
+					},
+					{
+						"name": "pond_value",
+						"type": "FLOAT"
+					},
+					{
+						"name": "dm_inserted",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Parquet5531CryptoVolPond')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "dp203wipro-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('gateiopond_',formatDateTime(utcNow(),'yyyyMMdd'),'.parquet')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat('5531CryptoPond_',formatDateTime(utcNow(),'yyyyMMdd'))",
+							"type": "Expression"
+						},
+						"fileSystem": "dp203wipro"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT32"
+					},
+					{
+						"name": "ticker",
+						"type": "UTF8"
+					},
+					{
+						"name": "coin",
+						"type": "UTF8"
+					},
+					{
+						"name": "pair",
+						"type": "UTF8"
+					},
+					{
+						"name": "vol_time",
+						"type": "INT32"
+					},
+					{
+						"name": "volume",
+						"type": "FLOAT"
+					},
+					{
+						"name": "processed_date",
+						"type": "INT96"
+					},
+					{
+						"name": "pond_value",
+						"type": "FLOAT"
+					},
+					{
+						"name": "dm_inserted",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ParquetFacCryptoVolBinance')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -778,6 +1046,46 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/dp203wipro-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/fact_analyze_crypto_vol_pond')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "5531Crypto",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "`fact_analyze_crypto_vol_pond`"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/5531Crypto')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/fact_analyze_crypto_vol_pond_binance')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "5531Crypto",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "`fact_analyze_crypto_vol_pond_binance`"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/5531Crypto')]"
 			]
 		},
 		{
@@ -911,7 +1219,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "405c8504-799f-4c44-81a0-58ac2e6e9710"
+						"spark.autotune.trackingId": "927d3b84-2c4a-4205-9262-d26349c2ae84"
 					}
 				},
 				"metadata": {
@@ -936,8 +1244,7 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": true
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -986,9 +1293,42 @@
 							}
 						},
 						"source": [
+							"dfBinancePond = spark \\\n",
+							"          .read \\\n",
+							"          .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoPond_{dt_frm}/binancepond_*', format='parquet')\n",
 							"\n",
+							"dfGateioPond = spark \\\n",
+							"     .read \\\n",
+							"     .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoPond_{dt_frm}/gateiopond_*', format='parquet')\n",
 							"\n",
+							"dfGateioPond  = dfGateio.withColumn('Exchange',lit('GATEIO'))\n",
+							"dfBinancePond  = dfBinancePond.withColumn('Exchange',lit('BINANCE'))\n",
+							"\n",
+							"dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"\n",
+							"#master fact tables\n",
 							"dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
+							"\n",
+							"#ponderation tables\n",
+							"dfResultPond.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/factpond_{dt_frm}')\n",
 							"\n",
 							""
 						],
