@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "323716be-858c-4482-af8f-3c5bfcbfbb1b"
+				"spark.autotune.trackingId": "da2e4108-f432-4f23-84a1-c05fbfb7a282"
 			}
 		},
 		"metadata": {
@@ -60,8 +60,6 @@
 					"dt = datetime.datetime.now()\r\n",
 					"dt_frm = dt.strftime('%Y%m%d')\r\n",
 					"\r\n",
-					"\r\n",
-					"# data_3e0d2bc4-a07d-4f68-b803-2e6070d3691a_d6ec0b41-17bd-4552-a48e-4ccfc353ee4f.parquet (BINANCE)\r\n",
 					"\r\n",
 					"dfBinance = spark \\\r\n",
 					"          .read \\\r\n",
