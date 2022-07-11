@@ -9,7 +9,7 @@
 		"type": "MySqlTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "`fact_analyze_crypto_vol_pond_binance`"
+			"tableName": "`fact_analyze_crypto_vol_pond_binance_bkp`"
 		}
 	}
 }
