@@ -371,13 +371,7 @@
 								"type": "DatasetReference",
 								"parameters": {}
 							},
-							"logStorageSettings": {
-								"linkedServiceName": {
-									"referenceName": "Blob5531Crypto",
-									"type": "LinkedServiceReference"
-								}
-							},
-							"enableLogging": true,
+							"enableLogging": false,
 							"storeSettings": {
 								"type": "AzureBlobStorageReadSettings",
 								"recursive": true,
@@ -545,8 +539,7 @@
 				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond_binance')]",
 				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolBinancePond')]",
 				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond')]",
-				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolPond')]",
-				"[concat(variables('workspaceId'), '/linkedServices/Blob5531Crypto')]"
+				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolPond')]"
 			]
 		},
 		{
