@@ -330,13 +330,7 @@
 						"referenceName": "5531CryptoFiles",
 						"type": "DatasetReference"
 					},
-					"logStorageSettings": {
-						"linkedServiceName": {
-							"referenceName": "Blob5531Crypto",
-							"type": "LinkedServiceReference"
-						}
-					},
-					"enableLogging": true,
+					"enableLogging": false,
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
 						"recursive": true,
