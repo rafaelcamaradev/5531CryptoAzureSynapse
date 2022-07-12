@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "3d894fc5-ca87-4552-aa84-9e9e8b22daba"
+				"spark.autotune.trackingId": "fe458377-c055-4c8a-812a-c38aff4efdd3"
 			}
 		},
 		"metadata": {
@@ -90,7 +90,7 @@
 					"dfResult.createOrReplaceTempView(\"fact_analyze_crypto_vol\")\r\n",
 					""
 				],
-				"execution_count": 55
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -123,7 +123,7 @@
 					"#dfBinancePond  = dfBinancePond.withColumn('Exchange',lit('BINANCE'))\n",
 					"#dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
 				],
-				"execution_count": 56
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -209,12 +209,13 @@
 					"\tcte3.processed_date AS processed_date,\n",
 					"\tcte3.last_processed_date AS last_processed_date,\n",
 					"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
-					"\tcte3.dm_inserted AS dm_inserted\n",
+					"\tcte3.dm_inserted AS dm_inserted,\n",
+					"    'BINANCE' as exchange\n",
 					"FROM (cte3\n",
 					"\tLEFT JOIN fact_analyze_crypto_vol_pond_binance pnd ON (cte3.ticker = pnd.ticker\n",
 					"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
 				],
-				"execution_count": 57
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -300,12 +301,13 @@
 					"\tcte3.processed_date AS processed_date,\n",
 					"\tcte3.last_processed_date AS last_processed_date,\n",
 					"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
-					"\tcte3.dm_inserted AS dm_inserted\n",
+					"\tcte3.dm_inserted AS dm_inserted,\n",
+					"\t'GATEIO' as exchange\n",
 					"FROM (cte3\n",
 					"\tLEFT JOIN fact_analyze_crypto_vol_pond_gateio pnd ON (cte3.ticker = pnd.ticker\n",
 					"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
 				],
-				"execution_count": 60
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -325,13 +327,16 @@
 					"dm_fact_analyze_crypto_vol_binance = sqlContext.table(\"dm_fact_analyze_crypto_vol_binance\")\n",
 					"dm_fact_analyze_crypto_vol_gateio = sqlContext.table(\"dm_fact_analyze_crypto_vol_gateio\")\n",
 					"\n",
-					"#display(dm_fact_analyze_crypto_vol_gateio.where(\"coin='PVU'\"))\n",
+					"dm_5531crypto = dm_fact_analyze_crypto_vol_binance.unionAll(dm_fact_analyze_crypto_vol_gateio)\n",
 					"\n",
-					"dm_fact_analyze_crypto_vol_binance.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_binance_{dt_frm}/\")\n",
-					"dm_fact_analyze_crypto_vol_gateio.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_gateio_{dt_frm}/\")\n",
+					"\n",
+					"dm_5531crypto.createOrReplaceTempView(\"vw_dm_5531crypto\")\n",
+					"\n",
+					"#dm_fact_analyze_crypto_vol_binance.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_binance_{dt_frm}/\")\n",
+					"#dm_fact_analyze_crypto_vol_gateio.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_gateio_{dt_frm}/\")\n",
 					""
 				],
-				"execution_count": 63
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -352,10 +357,10 @@
 				"source": [
 					"%%spark\n",
 					"// Make sure the name of the dedcated SQL pool (SQLPool01 below) matches the name of your SQL pool.\n",
-					"val df_dm_fact_analyze_crypto_vol_binance = spark.sqlContext.sql(\"select * from dm_fact_analyze_crypto_vol_binance\")\n",
-					"df_dm_fact_analyze_crypto_vol_binance.write.synapsesql(\"SQLPool01.wwi.dm_fact_analyze_crypto_vol_binance\", Constants.INTERNAL)"
+					"val df_dm_fact_analyze_crypto_vol_binance = spark.sqlContext.sql(\"select fact_calc, id, ticker, coin, pair, vol_time, volume, processed_date, last_processed_date , pond_value, dm_inserted, exchange from vw_dm_5531crypto\")\n",
+					"df_dm_fact_analyze_crypto_vol_binance.write.synapsesql(\"SQLPool01.SQLPool01.dm_5531crypto\", Constants.INTERNAL)"
 				],
-				"execution_count": null
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
