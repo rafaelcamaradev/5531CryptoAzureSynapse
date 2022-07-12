@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "6d6a79c4-f878-4b9b-9b72-44ecc4c7cc71"
+				"spark.autotune.trackingId": "3d894fc5-ca87-4552-aa84-9e9e8b22daba"
 			}
 		},
 		"metadata": {
@@ -332,6 +332,30 @@
 					""
 				],
 				"execution_count": 63
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "scala"
+					}
+				},
+				"source": [
+					"%%spark\n",
+					"// Make sure the name of the dedcated SQL pool (SQLPool01 below) matches the name of your SQL pool.\n",
+					"val df_dm_fact_analyze_crypto_vol_binance = spark.sqlContext.sql(\"select * from dm_fact_analyze_crypto_vol_binance\")\n",
+					"df_dm_fact_analyze_crypto_vol_binance.write.synapsesql(\"SQLPool01.wwi.dm_fact_analyze_crypto_vol_binance\", Constants.INTERNAL)"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
