@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "-- This is auto-generated code\nCREATE TABLE dm_5531crypto_binance  \n(\nfact_calc float NULL,\nid integer NOT NULL,\nticker varchar(50) NOT NULL,\ncoin varchar(50) NULL,\npair varchar(50) NULL,\nvol_time integer NULL,\nvolume float NULL,\nprocessed_date DATETIME NULL,\nlast_processed_date DATETIME NULL,\npond_value float NULL,\ndm_inserted integer NULL\n)\nWITH (DISTRIBUTION = ROUND_ROBIN, CLUSTERED COLUMNSTORE INDEX ORDER(id))  \n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "SQLPool01",
+				"poolName": "SQLPool01"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
