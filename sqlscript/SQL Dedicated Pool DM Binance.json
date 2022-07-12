@@ -2,7 +2,7 @@
 	"name": "SQL Dedicated Pool DM Binance",
 	"properties": {
 		"content": {
-			"query": "-- This is auto-generated code\nCREATE TABLE dm_5531crypto_binance  \n(\nfact_calc float NULL,\nid integer NOT NULL,\nticker varchar(50) NOT NULL,\ncoin varchar(50) NULL,\npair varchar(50) NULL,\nvol_time integer NULL,\nvolume float NULL,\nprocessed_date DATETIME NULL,\nlast_processed_date DATETIME NULL,\npond_value float NULL,\ndm_inserted integer NULL\n)\nWITH (DISTRIBUTION = ROUND_ROBIN, CLUSTERED COLUMNSTORE INDEX ORDER(id)) \n",
+			"query": "-- This is auto-generated code\nCREATE TABLE dm_5531crypto\n(\nfact_calc float NULL,\nid integer NOT NULL,\nticker varchar(50) NOT NULL,\ncoin varchar(50) NULL,\npair varchar(50) NULL,\nvol_time integer NULL,\nvolume float NULL,\nprocessed_date DATETIME NULL,\nlast_processed_date DATETIME NULL,\npond_value float NULL,\ndm_inserted integer NULL\n)\nWITH (DISTRIBUTION = ROUND_ROBIN, CLUSTERED COLUMNSTORE INDEX ORDER(id)) ",
 			"metadata": {
 				"language": "sql"
 			},
