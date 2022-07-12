@@ -1216,7 +1216,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "927d3b84-2c4a-4205-9262-d26349c2ae84"
+						"spark.autotune.trackingId": "9d070eb4-9b54-44c5-b941-2474211f0ad7"
 					}
 				},
 				"metadata": {
@@ -1241,7 +1241,8 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": true
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -1271,10 +1272,25 @@
 							"dfBinance  = dfBinance.withColumn('Exchange',lit('BINANCE'))\r\n",
 							"\r\n",
 							"dfResult = dfBinance.unionAll(dfGateio)\r\n",
+							"\r\n",
+							"\"\"\"\r\n",
+							"\t`tb1`.`id` AS `id`,\r\n",
+							"\t\t`tb1`.`ticker` AS `ticker`,\r\n",
+							"\t\t`tb1`.`coin` AS `coin`,\r\n",
+							"\t\t`tb1`.`pair` AS `pair`,\r\n",
+							"\t\t`tb1`.`vol_time` AS `vol_time`,\r\n",
+							"\t\t`tb1`.`volume` AS `volume`,\r\n",
+							"\t\t`tb1`.`processed_date` AS `processed_date`,\r\n",
+							"\t\tmax(`tb1`.`processed_date`) OVER (PARTITION BY `tb1`.`coin` ORDER BY `tb1`.`processed_date` DESC) AS `last_processed_date`,\r\n",
+							"\t\t`tb1`.`dm_inserted` AS `dm_inserted`\r\n",
+							"\"\"\"\r\n",
+							"dfResult = dfResult.select(\"id\",\"ticker\",\"coin\",\"pair\",\"vol_time\",\"volume\",\"processed_date\",\"dm_inserted\",\"Exchange\")\r\n",
+							"\r\n",
+							"dfResult.createOrReplaceTempView(\"fact_analyze_crypto_vol\")\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 55
 					},
 					{
 						"cell_type": "code",
@@ -1298,13 +1314,228 @@
 							"     .read \\\n",
 							"     .load(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/5531CryptoPond_{dt_frm}/gateiopond_*', format='parquet')\n",
 							"\n",
-							"dfGateioPond  = dfGateio.withColumn('Exchange',lit('GATEIO'))\n",
-							"dfBinancePond  = dfBinancePond.withColumn('Exchange',lit('BINANCE'))\n",
 							"\n",
-							"dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
+							"dfBinancePond.createOrReplaceTempView(\"fact_analyze_crypto_vol_pond_binance\")\n",
+							"dfGateioPond.createOrReplaceTempView(\"fact_analyze_crypto_vol_pond_gateio\")\n",
+							"\n",
+							"#deprecated\n",
+							"#dfGateioPond  = dfGateio.withColumn('Exchange',lit('GATEIO'))\n",
+							"#dfBinancePond  = dfBinancePond.withColumn('Exchange',lit('BINANCE'))\n",
+							"#dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 56
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\n",
+							"\n",
+							"CREATE OR REPLACE TEMPORARY VIEW dm_fact_analyze_crypto_vol_binance\n",
+							"AS\n",
+							"WITH cte AS (\n",
+							"\tSELECT\n",
+							"\t\ttb1.id AS id,\n",
+							"\t\ttb1.ticker AS ticker,\n",
+							"\t\ttb1.coin AS coin,\n",
+							"\t\ttb1.pair AS pair,\n",
+							"\t\ttb1.vol_time AS vol_time,\n",
+							"\t\ttb1.volume AS volume,\n",
+							"\t\ttb1.processed_date AS processed_date,\n",
+							"\t\tmax(tb1.processed_date) OVER (PARTITION BY tb1.coin ORDER BY tb1.processed_date DESC) AS last_processed_date,\n",
+							"\t\ttb1.dm_inserted AS dm_inserted\n",
+							"\tFROM\n",
+							"\t\tfact_analyze_crypto_vol tb1\n",
+							"),\n",
+							"cte2 AS (\n",
+							"SELECT\n",
+							"\tcte.id AS id,\n",
+							"\tcte.ticker AS ticker,\n",
+							"\tcte.coin AS coin,\n",
+							"\tcte.pair AS pair,\n",
+							"\tcte.vol_time AS vol_time,\n",
+							"\tcte.volume AS volume,\n",
+							"\tcte.processed_date AS processed_date,\n",
+							"\tcte.last_processed_date AS last_processed_date,\n",
+							"\t(\n",
+							"\tSELECT\n",
+							"\t\tfirst(fact_analyze_crypto_vol.volume)\n",
+							"\tFROM\n",
+							"\t\tfact_analyze_crypto_vol\n",
+							"\tWHERE\n",
+							"\t\tfact_analyze_crypto_vol.coin = cte.coin\n",
+							"\t\tAND fact_analyze_crypto_vol.processed_date = cte.last_processed_date) AS last_volume,\n",
+							"\tcte.dm_inserted AS dm_inserted\n",
+							"FROM\n",
+							"\tcte\n",
+							"),\n",
+							"cte3 AS (\n",
+							"SELECT\n",
+							"\tcte2.last_volume / cte2.volume AS fact_calc,\n",
+							"\tcte2.id AS id,\n",
+							"\tcte2.ticker AS ticker,\n",
+							"\tcte2.coin AS coin,\n",
+							"\tcte2.pair AS pair,\n",
+							"\tcte2.vol_time AS vol_time,\n",
+							"\tcte2.volume AS volume,\n",
+							"\tcte2.processed_date AS processed_date,\n",
+							"\tcte2.last_processed_date AS last_processed_date,\n",
+							"\tcte2.dm_inserted AS dm_inserted\n",
+							"FROM\n",
+							"\tcte2\n",
+							")\n",
+							"SELECT\n",
+							"\tcte3.fact_calc AS fact_calc,\n",
+							"\tcte3.id AS id,\n",
+							"\tcte3.ticker AS ticker,\n",
+							"\tcte3.coin AS coin,\n",
+							"\tcte3.pair AS pair,\n",
+							"\tifnull(pnd.vol_time, cte3.vol_time) AS vol_time,\n",
+							"\tcte3.volume AS volume,\n",
+							"\tcte3.processed_date AS processed_date,\n",
+							"\tcte3.last_processed_date AS last_processed_date,\n",
+							"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
+							"\tcte3.dm_inserted AS dm_inserted\n",
+							"FROM (cte3\n",
+							"\tLEFT JOIN fact_analyze_crypto_vol_pond_binance pnd ON (cte3.ticker = pnd.ticker\n",
+							"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
+						],
+						"outputs": [],
+						"execution_count": 57
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\n",
+							"\n",
+							"CREATE OR REPLACE TEMPORARY VIEW dm_fact_analyze_crypto_vol_gateio\n",
+							"AS\n",
+							"WITH cte AS (\n",
+							"\tSELECT\n",
+							"\t\ttb1.id AS id,\n",
+							"\t\ttb1.ticker AS ticker,\n",
+							"\t\ttb1.coin AS coin,\n",
+							"\t\ttb1.pair AS pair,\n",
+							"\t\ttb1.vol_time AS vol_time,\n",
+							"\t\ttb1.volume AS volume,\n",
+							"\t\ttb1.processed_date AS processed_date,\n",
+							"\t\tmax(tb1.processed_date) OVER (PARTITION BY tb1.coin ORDER BY tb1.processed_date DESC) AS last_processed_date,\n",
+							"\t\ttb1.dm_inserted AS dm_inserted\n",
+							"\tFROM\n",
+							"\t\tfact_analyze_crypto_vol tb1\n",
+							"),\n",
+							"cte2 AS (\n",
+							"SELECT\n",
+							"\tcte.id AS id,\n",
+							"\tcte.ticker AS ticker,\n",
+							"\tcte.coin AS coin,\n",
+							"\tcte.pair AS pair,\n",
+							"\tcte.vol_time AS vol_time,\n",
+							"\tcte.volume AS volume,\n",
+							"\tcte.processed_date AS processed_date,\n",
+							"\tcte.last_processed_date AS last_processed_date,\n",
+							"\t(\n",
+							"\tSELECT\n",
+							"\t\tfirst(fact_analyze_crypto_vol.volume)\n",
+							"\tFROM\n",
+							"\t\tfact_analyze_crypto_vol\n",
+							"\tWHERE\n",
+							"\t\tfact_analyze_crypto_vol.coin = cte.coin\n",
+							"\t\tAND fact_analyze_crypto_vol.processed_date = cte.last_processed_date) AS last_volume,\n",
+							"\tcte.dm_inserted AS dm_inserted\n",
+							"FROM\n",
+							"\tcte\n",
+							"),\n",
+							"cte3 AS (\n",
+							"SELECT\n",
+							"\tcte2.last_volume / cte2.volume AS fact_calc,\n",
+							"\tcte2.id AS id,\n",
+							"\tcte2.ticker AS ticker,\n",
+							"\tcte2.coin AS coin,\n",
+							"\tcte2.pair AS pair,\n",
+							"\tcte2.vol_time AS vol_time,\n",
+							"\tcte2.volume AS volume,\n",
+							"\tcte2.processed_date AS processed_date,\n",
+							"\tcte2.last_processed_date AS last_processed_date,\n",
+							"\tcte2.dm_inserted AS dm_inserted\n",
+							"FROM\n",
+							"\tcte2\n",
+							")\n",
+							"SELECT\n",
+							"\tcte3.fact_calc AS fact_calc,\n",
+							"\tcte3.id AS id,\n",
+							"\tcte3.ticker AS ticker,\n",
+							"\tcte3.coin AS coin,\n",
+							"\tcte3.pair AS pair,\n",
+							"\tifnull(pnd.vol_time, cte3.vol_time) AS vol_time,\n",
+							"\tcte3.volume AS volume,\n",
+							"\tcte3.processed_date AS processed_date,\n",
+							"\tcte3.last_processed_date AS last_processed_date,\n",
+							"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
+							"\tcte3.dm_inserted AS dm_inserted\n",
+							"FROM (cte3\n",
+							"\tLEFT JOIN fact_analyze_crypto_vol_pond_gateio pnd ON (cte3.ticker = pnd.ticker\n",
+							"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
+						],
+						"outputs": [],
+						"execution_count": 60
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"dm_fact_analyze_crypto_vol_binance = sqlContext.table(\"dm_fact_analyze_crypto_vol_binance\")\n",
+							"dm_fact_analyze_crypto_vol_gateio = sqlContext.table(\"dm_fact_analyze_crypto_vol_gateio\")\n",
+							"\n",
+							"#display(dm_fact_analyze_crypto_vol_gateio.where(\"coin='PVU'\"))\n",
+							"\n",
+							"dm_fact_analyze_crypto_vol_binance.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_binance_{dt_frm}/\")\n",
+							"dm_fact_analyze_crypto_vol_gateio.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_gateio_{dt_frm}/\")\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 63
 					},
 					{
 						"cell_type": "code",
@@ -1322,10 +1553,10 @@
 						"source": [
 							"\n",
 							"#master fact tables\n",
-							"dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
+							"#dfResult.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/fact_{dt_frm}')\n",
 							"\n",
 							"#ponderation tables\n",
-							"dfResultPond.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/factpond_{dt_frm}')\n",
+							"#dfResultPond.write.format('parquet').mode('append').save(f'abfss://dp203wipro@dp203wipro.dfs.core.windows.net/factpond_{dt_frm}')\n",
 							"\n",
 							""
 						],
