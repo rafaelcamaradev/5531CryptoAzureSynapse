@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "2c6ace26-39b5-4f08-8b41-3776f098637b"
+				"spark.autotune.trackingId": "9d643c62-fae7-465b-a98e-161196c83679"
 			}
 		},
 		"metadata": {
@@ -358,7 +358,7 @@
 					"%%spark\n",
 					"// Make sure the name of the dedcated SQL pool (SQLPool01 below) matches the name of your SQL pool.\n",
 					"val df_dm_fact_analyze_crypto_vol_binance = spark.sqlContext.sql(\"select fact_calc, id, ticker, coin, pair, vol_time, volume, processed_date, last_processed_date , pond_value, dm_inserted, exchange from vw_dm_5531crypto\")\n",
-					"df_dm_fact_analyze_crypto_vol_binance.write.synapsesql(\"SQLPool01.dbo.dm_5531crypto_stage\", Constants.INTERNAL)"
+					"df_dm_fact_analyze_crypto_vol_binance.write.mode(\"overwrite\").synapsesql(\"SQLPool01.dbo.dm_5531crypto_stage\", Constants.INTERNAL)"
 				],
 				"execution_count": 34
 			},
