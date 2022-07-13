@@ -14,6 +14,9 @@
 		"dp203wipro-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
+		"DedicatedPool01_connectionString": {
+			"value": ""
+		},
 		"dp203wipro-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://dp203wipro.dfs.core.windows.net"
 		}

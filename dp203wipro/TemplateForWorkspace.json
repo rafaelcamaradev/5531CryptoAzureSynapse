@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'dp203wipro-WorkspaceDefaultSqlServer'"
 		},
+		"DedicatedPool01_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'DedicatedPool01'"
+		},
 		"dp203wipro-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dp203wipro.dfs.core.windows.net"
@@ -516,6 +520,58 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "CreateFinalHashTable",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Union of Exchanges",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "DedicatedPool01",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "CREATE TABLE [SQLPool01].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [SQLPool01].[dm_5531crypto_stage];"
+								}
+							]
+						}
+					},
+					{
+						"name": "FailComputingNotebooks",
+						"type": "Fail",
+						"dependsOn": [
+							{
+								"activity": "Union of Exchanges",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "Fail to process transformation in Spark",
+							"errorCode": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -539,7 +595,8 @@
 				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond_binance')]",
 				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolBinancePond')]",
 				"[concat(variables('workspaceId'), '/datasets/fact_analyze_crypto_vol_pond')]",
-				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolPond')]"
+				"[concat(variables('workspaceId'), '/datasets/Parquet5531CryptoVolPond')]",
+				"[concat(variables('workspaceId'), '/linkedServices/DedicatedPool01')]"
 			]
 		},
 		{
@@ -1196,6 +1253,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL Dedicated Pool DM Binance')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nCREATE TABLE dm_5531crypto_stage  \n(\nfact_calc float NULL,\nid integer NOT NULL,\nticker varchar(50) NOT NULL,\ncoin varchar(50) NULL,\npair varchar(50) NULL,\nvol_time integer NULL,\nvolume float NULL,\nprocessed_date DATETIME NULL,\nlast_processed_date DATETIME NULL,\npond_value float NULL,\ndm_inserted integer NULL,\nexchange varchar(20) NULL\n)\nWITH (DISTRIBUTION = ROUND_ROBIN, CLUSTERED COLUMNSTORE INDEX ORDER(id)) ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "SQLPool01",
+						"poolName": "SQLPool01"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Union of Exchanges')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -1216,7 +1293,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "9d070eb4-9b54-44c5-b941-2474211f0ad7"
+						"spark.autotune.trackingId": "5f55ec98-a3a6-47e7-a00d-27b7f26e36df"
 					}
 				},
 				"metadata": {
@@ -1290,7 +1367,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 55
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -1324,7 +1401,7 @@
 							"#dfResultPond = dfBinancePond.unionAll(dfGateioPond)"
 						],
 						"outputs": [],
-						"execution_count": 56
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -1410,13 +1487,14 @@
 							"\tcte3.processed_date AS processed_date,\n",
 							"\tcte3.last_processed_date AS last_processed_date,\n",
 							"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
-							"\tcte3.dm_inserted AS dm_inserted\n",
+							"\tcte3.dm_inserted AS dm_inserted,\n",
+							"    'BINANCE' as exchange\n",
 							"FROM (cte3\n",
 							"\tLEFT JOIN fact_analyze_crypto_vol_pond_binance pnd ON (cte3.ticker = pnd.ticker\n",
 							"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
 						],
 						"outputs": [],
-						"execution_count": 57
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -1502,13 +1580,14 @@
 							"\tcte3.processed_date AS processed_date,\n",
 							"\tcte3.last_processed_date AS last_processed_date,\n",
 							"\tcte3.fact_calc * cte3.vol_time AS pond_value,\n",
-							"\tcte3.dm_inserted AS dm_inserted\n",
+							"\tcte3.dm_inserted AS dm_inserted,\n",
+							"\t'GATEIO' as exchange\n",
 							"FROM (cte3\n",
 							"\tLEFT JOIN fact_analyze_crypto_vol_pond_gateio pnd ON (cte3.ticker = pnd.ticker\n",
 							"\t\t\tAND cte3.vol_time = pnd.previous_vol_time))"
 						],
 						"outputs": [],
-						"execution_count": 60
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -1528,14 +1607,42 @@
 							"dm_fact_analyze_crypto_vol_binance = sqlContext.table(\"dm_fact_analyze_crypto_vol_binance\")\n",
 							"dm_fact_analyze_crypto_vol_gateio = sqlContext.table(\"dm_fact_analyze_crypto_vol_gateio\")\n",
 							"\n",
-							"#display(dm_fact_analyze_crypto_vol_gateio.where(\"coin='PVU'\"))\n",
+							"dm_5531crypto = dm_fact_analyze_crypto_vol_binance.unionAll(dm_fact_analyze_crypto_vol_gateio)\n",
 							"\n",
-							"dm_fact_analyze_crypto_vol_binance.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_binance_{dt_frm}/\")\n",
-							"dm_fact_analyze_crypto_vol_gateio.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_gateio_{dt_frm}/\")\n",
+							"\n",
+							"dm_5531crypto.createOrReplaceTempView(\"vw_dm_5531crypto\")\n",
+							"\n",
+							"#dm_fact_analyze_crypto_vol_binance.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_binance_{dt_frm}/\")\n",
+							"#dm_fact_analyze_crypto_vol_gateio.write.parquet(f\"abfss://dp203wipro@dp203wipro.dfs.core.windows.net/vw_5531crypto_gateio_{dt_frm}/\")\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 63
+						"execution_count": 30
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "scala"
+							}
+						},
+						"source": [
+							"%%spark\n",
+							"// Make sure the name of the dedcated SQL pool (SQLPool01 below) matches the name of your SQL pool.\n",
+							"val df_dm_fact_analyze_crypto_vol_binance = spark.sqlContext.sql(\"select fact_calc, id, ticker, coin, pair, vol_time, volume, processed_date, last_processed_date , pond_value, dm_inserted, exchange from vw_dm_5531crypto\")\n",
+							"df_dm_fact_analyze_crypto_vol_binance.write.synapsesql(\"SQLPool01.SQLPool01.dm_5531crypto_stage\", Constants.INTERNAL)"
+						],
+						"outputs": [],
+						"execution_count": 34
 					},
 					{
 						"cell_type": "code",
@@ -1591,6 +1698,37 @@
 			},
 			"dependsOn": [],
 			"location": "eastus2"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQLPool01')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus2"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/DedicatedPool01')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('DedicatedPool01_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
 		}
 	]
 }
