@@ -11,10 +11,10 @@
 		"Blob5531Crypto_connectionString": {
 			"value": ""
 		},
-		"dp203wipro-WorkspaceDefaultSqlServer_connectionString": {
+		"DedicatedPool01_connectionString": {
 			"value": ""
 		},
-		"DedicatedPool01_connectionString": {
+		"dp203wipro-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
 		"dp203wipro-WorkspaceDefaultStorage_properties_typeProperties_url": {
