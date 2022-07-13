@@ -548,7 +548,7 @@
 							"scripts": [
 								{
 									"type": "Query",
-									"text": "CREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [SQLPool01].[dm_5531crypto_stage];"
+									"text": "CREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [dbo].[dm_5531crypto_stage];"
 								}
 							]
 						}
