@@ -1,6 +1,6 @@
 Initialized by Azure Data Factory!
 
-This is an example of Azure Synapse's project, including a Pipeline with the following components/funcionalities:
+This is an example of Azure Synapse's project processing some massive data related to cryptocurrencies, including a Pipeline with the following components/funcionalities:
  
 - Copy Command tasks;
 - Remove task, used to remove all files from customized folders (using 'dynamic content' option) inside of Azure Data Lake Storage Gen2;
