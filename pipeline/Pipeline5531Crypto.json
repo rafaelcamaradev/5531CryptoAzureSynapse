@@ -499,7 +499,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "CREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [dbo].[dm_5531crypto_stage];"
+							"text": "IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'dm_5531crypto') \nBEGIN\n   DROP TABLE [dbo].dm_5531crypto;\nEND;\n\nCREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [dbo].[dm_5531crypto_stage];"
 						}
 					]
 				}
