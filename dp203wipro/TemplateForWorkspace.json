@@ -548,7 +548,7 @@
 							"scripts": [
 								{
 									"type": "Query",
-									"text": "CREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [dbo].[dm_5531crypto_stage];"
+									"text": "IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'dm_5531crypto') \nBEGIN\n   DROP TABLE [dbo].dm_5531crypto;\nEND;\n\nCREATE TABLE [dbo].[dm_5531crypto]\n    WITH    (   DISTRIBUTION = HASH([id])\n            ,   CLUSTERED COLUMNSTORE INDEX \n            )\nAS\nSELECT  *\nFROM    [dbo].[dm_5531crypto_stage];"
 								}
 							]
 						}
@@ -1312,7 +1312,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "1",
-						"spark.autotune.trackingId": "9d643c62-fae7-465b-a98e-161196c83679"
+						"spark.autotune.trackingId": "5fd90175-ad16-459e-934f-e40137eda052"
 					}
 				},
 				"metadata": {
@@ -1337,7 +1337,8 @@
 						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": true
 					},
 					"sessionKeepAliveTimeout": 30
 				},
